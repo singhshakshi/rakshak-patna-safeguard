@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import NavMenu from '@/components/NavMenu';
+import LanguageToggle from '@/components/LanguageToggle';
 import ThreatCard from '@/components/ThreatCard';
 import QuizCard from '@/components/QuizCard';
 import { Button } from '@/components/ui/button';
@@ -9,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, TrendingUp, Zap, BookOpen } from 'lucide-react';
 import { Threat, Quiz } from '@/types/threat';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 
 // Mock data
 const mockThreats: Threat[] = [
@@ -66,23 +67,8 @@ const mockQuiz: Quiz = {
 
 export default function Home() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [sosActive, setSosActive] = useState(false);
-
-  const handleSOS = () => {
-    setSosActive(true);
-    toast({
-      title: "SOS Activated!",
-      description: "Emergency help request sent to Cyber Police",
-      variant: "destructive",
-    });
-    
-    // Navigate to SOS screen after a short delay
-    setTimeout(() => {
-      navigate('/sos');
-    }, 1000);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -92,18 +78,32 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold">Cyber-Safe Patna</h1>
+              <h1 className="text-xl font-bold">{t('Cyber-Safe Patna', 'साइबर-सेफ पटना')}</h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <LanguageToggle />
               <Badge className="bg-gradient-primary text-primary-foreground">
                 <Zap className="h-3 w-3 mr-1" />
-                {user?.points || 0} pts
+                {user?.points || 0} {t('pts', 'अंक')}
               </Badge>
               <NavMenu />
             </div>
           </div>
         </div>
       </header>
+
+      {/* SOS Button - Fixed Position Top Right */}
+      <div className="fixed top-20 right-4 z-40">
+        <Button
+          variant="destructive"
+          size="sm"
+          className="shadow-lg"
+          onClick={() => navigate('/sos')}
+        >
+          <AlertTriangle className="h-4 w-4 mr-1" />
+          {t('SOS', 'SOS')}
+        </Button>
+      </div>
 
       {/* Hero Section with Trending Alert */}
       <div className="container mx-auto px-4 py-4">
@@ -112,18 +112,18 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-6 w-6 animate-pulse" />
               <div className="flex-1">
-                <p className="font-semibold">⚠️ TRENDING ALERT</p>
+                <p className="font-semibold">⚠️ {t('TRENDING ALERT', 'ट्रेंडिंग अलर्ट')}</p>
                 <p className="text-sm opacity-90">
-                  New WhatsApp scam targeting Patna residents - Click to learn more
+                  {t('New WhatsApp scam targeting Patna residents', 'पटना निवासियों को लक्षित करने वाला नया व्हाट्सएप घोटाला')}
                 </p>
               </div>
               <Button 
                 variant="outline" 
                 size="sm"
                 className="bg-white/20 border-white/30 text-white hover:bg-white/30"
-                onClick={() => navigate('/threats')}
+                onClick={() => navigate('/recent-frauds')}
               >
-                View Details
+                {t('View Details', 'विवरण देखें')}
               </Button>
             </div>
           </CardContent>
@@ -137,7 +137,7 @@ export default function Home() {
             onClick={() => navigate('/missions')}
           >
             <BookOpen className="h-6 w-6" />
-            <span>Start Learning</span>
+            <span>{t('Start Learning', 'सीखना शुरू करें')}</span>
           </Button>
           <Button
             variant="secondary"
@@ -145,7 +145,7 @@ export default function Home() {
             onClick={() => navigate('/recent-frauds')}
           >
             <TrendingUp className="h-6 w-6" />
-            <span>Recent Frauds</span>
+            <span>{t('Recent Frauds', 'हाल की धोखाधड़ी')}</span>
           </Button>
         </div>
 
@@ -153,7 +153,7 @@ export default function Home() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
-            For You - Latest Threats
+            {t('For You - Latest Threats', 'आपके लिए - नवीनतम खतरे')}
           </h2>
 
           {/* Threat Cards */}
@@ -169,7 +169,7 @@ export default function Home() {
 
           {/* Interactive Quiz */}
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-3">Test Your Knowledge</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('Test Your Knowledge', 'अपना ज्ञान परखें')}</h3>
             <QuizCard
               quiz={mockQuiz}
               onComplete={(correct) => {
@@ -184,34 +184,21 @@ export default function Home() {
           {/* Recommended Mission */}
           <Card className="bg-gradient-card">
             <CardContent className="p-4">
-              <h3 className="font-semibold mb-2">Recommended Mission</h3>
+              <h3 className="font-semibold mb-2">{t('Recommended Mission', 'अनुशंसित मिशन')}</h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Password Security Basics</p>
+                  <p className="text-sm font-medium">{t('Password Security Basics', 'पासवर्ड सुरक्षा मूल बातें')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Learn to create unbreakable passwords
+                    {t('Learn to create unbreakable passwords', 'अटूट पासवर्ड बनाना सीखें')}
                   </p>
                 </div>
                 <Button size="sm" onClick={() => navigate('/missions')}>
-                  Start
+                  {t('Start', 'शुरू करें')}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      {/* Floating SOS Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          variant="sos"
-          size="xl"
-          className={`rounded-full shadow-2xl ${sosActive ? 'scale-110' : ''}`}
-          onClick={handleSOS}
-        >
-          <AlertTriangle className="h-6 w-6 mr-2" />
-          CYBER SOS
-        </Button>
       </div>
     </div>
   );
